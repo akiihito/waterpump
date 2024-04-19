@@ -2,26 +2,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
     <title>Water Pump Controller</title>
 </head>
 <body>
     <h1>Water Pump Controller</h1>
     <hr>
     <h2>現在の状態</h2>
-    <h3>停止中</h3>
+    <div id="state"></div>
     <hr>
     <h2>現在の設定</h2>
-    <h3>ポンプ稼働時間: 2 秒, ポンプ休止時間 2 秒</h3>
+    <div id="caution"></div>
+    <div id="settings"></div>
     <hr>
     <h2>設定変更</h2>
     <label for="duration">ポンプ稼働時間（秒）</label>
     <input type="number" id="duration" name="duration"><br>
-    <label for="duration">ポンプ休止時間（秒）</label>
-    <input type="number" id="duration" name="duration"><br>
-    <button type="submit" name="name" value="value">変更する</button>
+    <label for="interval">ポンプ休止時間（秒）</label>
+    <input type="number" id="interval" name="interval"><br>
+    <button type="button" id="req_settings">変更する</button>
     <hr>
-    <button type="submit" name="name" value="value">実行開始</button>
-    <button type="submit" name="name" value="value">初期状態に戻る</button>
-    <button type="submit" name="name" value="value">強制終了</button>
+    <button type="button" id="req_start">実行開始</button>
+    <button type="button" id="req_reset">初期状態に戻る</button>
+    <button type="button" id="req_shutdown">強制終了</button>
+
+<script>
+      document.addEventListener("DOMContentLoaded", (event) => {
+        var socket = io.connect("http://" + document.domain + ":" + location.port);
+
+        socket.on("current_state", function (d) {
+            console.log("received current state")
+            const msg = document.getElementById("state");
+            msg.innerHTML = "<h2>" + d.state + "</h2>";
+        });
+    
+        socket.on("current_settings", function (d) {
+            console.log("received current settings")
+            var message = document.getElementById("settings");
+            var caution = document.getElementById("caution");
+            message.innerHTML = "<h2> ポンプ稼働時間（秒）: " + d.duration + " ポンプ休止時間（秒）: " + d.interval + "</h2>"
+            caution.innerHTML = "";
+        });
+    
+        document.getElementById("req_settings")
+        .addEventListener("click", function() {
+            var caution = document.getElementById("caution")
+            caution.innerHTML = "<p><font color=\"red\">（※注意）水位を初期状態に戻してから設定を変更します</font></p>";
+            var duration = document.getElementById("duration").value;
+            var interval = document.getElementById("interval").value;
+            socket.emit("req_settings", {"duration": duration, "interval":interval});
+            document.getElementById("duration").value = "";
+            document.getElementById("interval").value = "";
+        });
+
+        document.getElementById("req_start")
+        .addEventListener("click", function() {
+            socket.emit("req_start", "request the pumps start")
+        });
+        document.getElementById("req_reset")
+        .addEventListener("click", function() {
+            socket.emit("req_reset", "request the pumps reset")
+        });
+        document.getElementById("req_shutdown")
+        .addEventListener("click", function() {
+            socket.emit("req_shutdown", "request the pumps stop immediately")
+        });
+    
+        socket.emit("req_current_state", "request the current state")
+        socket.emit("req_current_settings", "request the current settings")
+    });
+
+
+</script>
 </body>
 </html>
