@@ -147,7 +147,7 @@ if __name__ == '__main__':
             print("Worker has already been running")
         else:
             worker.start()
-        socketio.emit('current_state', {'state': worker.getState().name})
+            socketio.emit('current_state', {'state': worker.getState().name})
 
     @socketio.on('req_reset')
     def handle_req_reset(msg):
@@ -160,7 +160,7 @@ if __name__ == '__main__':
             worker.softTerminate()
             worker.join()
             worker = initWorker(controller1, controller2, current_settings)
-        socketio.emit('current_state',  {'state': worker.getState().name})
+            socketio.emit('current_state',  {'state': worker.getState().name})
 
     @socketio.on('req_shutdown')
     def handle_req_shutdown(msg):
@@ -173,7 +173,7 @@ if __name__ == '__main__':
             pump_wait.set()
             worker.join()
             worker = initWorker(controller1, controller2, current_settings)
-        socketio.emit('current_state',  {'state': worker.getState().name})
+            socketio.emit('current_state',  {'state': worker.getState().name})
 
     @socketio.on('req_current_settings')
     def handle_req_current_settings(msg):
