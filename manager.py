@@ -107,8 +107,8 @@ if __name__ == '__main__':
 
 
     current_settings = {'duration': args.duration, 'interval': args.interval}
-    controller1 = Controller(motorid=1, m1pin=6, m2pin=13, pwmpin=12, mode=args.test)
-    controller2 = Controller(motorid=2, m1pin=20, m2pin=21, pwmpin=26, mode=args.test)
+    controller1 = Controller(motorid=1, m1pin=6, m2pin=13, pwmpin=12, testmode=args.test)
+    controller2 = Controller(motorid=2, m1pin=20, m2pin=21, pwmpin=26, testmode=args.test)
 
     worker = initWorker(controller1, controller2, current_settings)
 
