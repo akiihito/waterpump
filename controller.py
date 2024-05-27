@@ -1,3 +1,4 @@
+from time import sleep
 import RPi.GPIO as GPIO
 
 
@@ -52,3 +53,15 @@ class Controller:
             pass
         else:
             GPIO.cleanup()
+
+    def speed(self, duty) -> None:
+        self.motor.ChangeDutyCycle(duty)
+
+
+if __name__ == "__main__":
+    controller1 = Controller(motorid=1, m1pin=6, m2pin=13, pwmpin=12, testmode=False)
+    controller1.start()
+    sleep(2)
+    controller1.speed(30)
+    sleep(2)
+    controller1.stop()
