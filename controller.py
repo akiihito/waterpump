@@ -55,7 +55,10 @@ class Controller:
             GPIO.cleanup()
 
     def speed(self, duty) -> None:
-        self.motor.ChangeDutyCycle(duty)
+        if 0 < duty and duty < 50:
+            self.motor.ChangeDutyCycle(duty)
+        else:
+            print("duty value exceed what we expect :", duty)
 
 
 if __name__ == "__main__":
