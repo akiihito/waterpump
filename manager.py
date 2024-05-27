@@ -190,4 +190,4 @@ if __name__ == '__main__':
     # With debug mode on, print message in Worker class will be printed twice.
     # https://stackoverflow.com/questions/57344224/thread-is-printing-two-times-at-same-loop
     #app.run(host="0.0.0.0", port=5000, debug=True)
-    socketio.run(app, host="0.0.0.0", port=22331)
+    socketio.run(app, host="0.0.0.0", port=22331, allow_unsafe_werkzeug=True)
