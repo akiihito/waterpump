@@ -13,28 +13,28 @@ args = parser.parse_args()
 
 
 class CustomThread(threading.Thread):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._run = self.run
-        self.run = self.set_id_and_run
-
-    def set_id_and_run(self):
-        self.id = threading.get_native_id()
-        self._run()
+    def __init__(self, group=None, target=None, name=None, args=(), kwargs={}):
+        threading.Thread.__init__(self, group=group, target=target, name=name)
+        self.args = args
+        self.kwargs = kwargs
+        return
+    
+    def run(self):
+        self._target(*self.args, **self.kwargs)
 
     def get_id(self):
-        return self.id
-        
+        if hasattr(self, '_thread_id'):
+            return self._thread_id
+        for id, thread in threading._active.items():
+            if thread is self:
+                return id
+    
+    # 強制終了させる関数
     def raise_exception(self):
-        res = ctypes.pythonapi.PyThreadState_SetAsyncExc(
-            ctypes.c_long(self.get_id()), 
-            ctypes.py_object(SystemExit)
-        )
-        if res > 1:
-            ctypes.pythonapi.PyThreadState_SetAsyncExc(
-                ctypes.c_long(self.get_id()), 
-                0
-            )
+        thread_id = self.get_id()
+        resu = ctypes.pythonapi.PyThreadState_SetAsyncExc(ctypes.c_long(thread_id), ctypes.py_object(SystemExit))
+        if resu > 1:
+            ctypes.pythonapi.PyThreadState_SetAsyncExc(ctypes.c_long(thread_id), 0)
             print('Failure in raising exception')
 
 
