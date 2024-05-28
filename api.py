@@ -41,8 +41,9 @@ class CustomThread(threading.Thread):
 def task(t:int):
     global running_pump
     sleep(t)
-    running_pump.stop()
-    running_pump = None
+    if running_pump != None:
+        running_pump.stop()
+        running_pump = None
 
 app = FastAPI()
 
@@ -64,10 +65,12 @@ async def root():
 @app.get("/api/{command}")
 async def api(command: str, duration: int = 2, speed: int = 20):
     global running_pump
+    global worker
 
     if command == 'stop':
         running_pump.stop()
         running_pump = None
+        worker.raise_exception()
         duration = 0
         speed = 0
         msg = "stop pump"
