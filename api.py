@@ -39,6 +39,7 @@ class CustomThread(threading.Thread):
 
 
 def task(t:int):
+    global running_pump
     sleep(t)
     running_pump.stop()
     running_pump = None
