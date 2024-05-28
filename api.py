@@ -67,7 +67,7 @@ async def api(command: str, duration: int = 2, speed: int = 20):
     global running_pump
     global worker
 
-    if command == 'stop':
+    if command == 'stop' and running_pump != None:
         running_pump.stop()
         running_pump = None
         worker.raise_exception()
