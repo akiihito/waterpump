@@ -37,9 +37,11 @@ class CustomThread(threading.Thread):
             )
             print('Failure in raising exception')
 
-def task(ctrl: Controller, t:int):
+
+def task(t:int):
     sleep(t)
-    ctrl.stop()
+    running_pump.stop()
+    running_pump = None
 
 app = FastAPI()
 
@@ -51,8 +53,8 @@ drain.speed(args.speed)
 
 ## 実行中のポンプ（給水 or 排水）
 running_pump : Controller = None
-## Timer スレッド
-worker: CustomThread = None
+## 実行中の停止タイマー
+worker : CustomThread
 
 @app.get("/")
 async def root():
@@ -61,27 +63,39 @@ async def root():
 @app.get("/api/{command}")
 async def api(command: str, duration: int = 2, speed: int = 20):
     global running_pump
-    global worker
 
     if command == 'stop':
         running_pump.stop()
+        running_pump = None
         duration = 0
         speed = 0
-        ## タイマースレッドの後片付け
-        if worker != None:
-            worker.raise_exception()
-            worker = None
-    
-    if command == 'supply':
-        running_pump = supply
-    elif command == 'drain':
-        running_pump = drain
-    if duration != 0:
-        timer = CustomThread(target=task, args=(running_pump, duration), daemon=True)
-        running_pump.start()
-        timer.start()
+        return {"cmd": command, "duration": duration, "speed": speed}
 
-    return {"cmd": command, "duration": duration, "speed": speed}
+    
+    ## 給水・排水方向の設定
+    if command == 'supply' and running_pump == None:
+        running_pump = supply
+        msg = "supply pump start"
+    else:
+        msg = "supply pump has already started"
+        return {"cmd": command, "duration": duration, "speed": speed}
+
+
+    if command == 'drain' and running_pump == None:
+        running_pump = drain
+        msg = "drain pump start"
+    else:
+        msg = "drain pump has already started"
+        return {"cmd": command, "duration": duration, "speed": speed}
+
+    ## 実行時間の設定
+    worker = CustomThread(target=task, args=(duration), daemon=True)
+
+    ## 給排水の実行と停止タイマーの起動
+    running_pump.start()
+    worker.start()
+ 
+    return {"cmd": command, "duration": duration, "speed": speed, "message": msg}
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000, log_level="debug")
