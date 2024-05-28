@@ -69,24 +69,20 @@ async def api(command: str, duration: int = 2, speed: int = 20):
         running_pump = None
         duration = 0
         speed = 0
-        return {"cmd": command, "duration": duration, "speed": speed}
+        msg = "stop pump"
+        return {"cmd": command, "duration": duration, "speed": speed, "message": msg}
 
     
     ## 給水・排水方向の設定
     if command == 'supply' and running_pump == None:
         running_pump = supply
         msg = "supply pump start"
-    else:
-        msg = "supply pump has already started"
-        return {"cmd": command, "duration": duration, "speed": speed}
-
-
-    if command == 'drain' and running_pump == None:
+    elif command == 'drain' and running_pump == None:
         running_pump = drain
         msg = "drain pump start"
     else:
-        msg = "drain pump has already started"
-        return {"cmd": command, "duration": duration, "speed": speed}
+        msg = "pump has already started"
+        return {"cmd": command, "duration": duration, "speed": speed, "message": msg}
 
     ## 実行時間の設定
     worker = CustomThread(target=task, args=(duration), daemon=True)
