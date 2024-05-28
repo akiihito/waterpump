@@ -4,12 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HTML input range</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" type="text/css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 
 </head>
 <body>
-
     <input id="speed" max="100" min="0" type="range" value="100" /><br>
     SPEED (Duty):<span class="range-value-result">100</span>
     <script>
@@ -19,19 +17,30 @@
         })
 
 
-        var $startElement = document.getElementById( "req_start" );
-        $startElement.onmousedown = function ( $event ) {
-            if( $event.button == 0 ){
-                // ポンプの作動をスピード付きで送信
-            }
-        }   
-        $sampleAElement.onmouseup = function ( $event ) {
-            if( $event.button == 0 ){
-                // ポンプ停止を送信
-            }
+        const startbutton = document.querySelector(".start_button");
+        const stopbutton  = document.querySelector(".stop_button");
+
+        startbutton.addEventListener("click", startpump);
+        stopbutton.addEventListener("click", stoppump);
+
+        function startpump() {
+            // ポンプの作動をスピード付きで送信
+            const Http = new XMLHttpRequest();
+            const url='http://192.168.1.52:8000/api/supply?duration=10';
+            Http.open("GET", url);
+            Http.send();
         }
+        function stoppump() {
+            // ポンプの作動をスピード付きで送信
+            const Http = new XMLHttpRequest();
+            const url='http://192.168.1.52:8000/api/stop';
+            Http.open("GET", url);
+            Http.send();
+        }
+
     </script>
     <button type="button" id="req_start" class="start_button">Run</button>
+    <button type="button" id="req_stop" class="stop_button">Stop</button>
 
 </body>
 </html>
