@@ -89,6 +89,7 @@ async def api(command: str, duration: int = 2, speed: int = 20):
     worker = CustomThread(target=task, args=(duration,))
 
     ## 給排水の実行と停止タイマーの起動
+    running_pump.speed(speed)
     running_pump.start()
     worker.start()
  
