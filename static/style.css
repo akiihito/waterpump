@@ -1,0 +1,20 @@
+@charset "utf-8";
+
+.start_button {
+    display: block;
+    background: #aacf53; /* 緑色 */
+    color: #fff;
+    border: solid 4px #aacf53; /* 緑色 */
+    font-size: 1.4em;
+    border-radius: 5px;
+}
+
+.start_button:hover {
+    background: #82ae46; /* 少し濃い緑色 */
+    border: solid 4px #82ae46; /* 少し濃い緑色 */
+}
+
+.start_button:active {
+    background: #69821b; /* 濃い緑色 */
+}
+  

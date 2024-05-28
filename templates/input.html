@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML input range</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" type="text/css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+</head>
+<body>
+
+    <input id="speed" max="100" min="0" type="range" value="100" /><br>
+    SPEED (Duty):<span class="range-value-result">100</span>
+    <script>
+        $(speed).on("input", function (e) {
+            var range = e.target
+            $(".range-value-result").text(range.value)
+        })
+
+
+        var $startElement = document.getElementById( "req_start" );
+        $startElement.onmousedown = function ( $event ) {
+            if( $event.button == 0 ){
+                // ポンプの作動をスピード付きで送信
+            }
+        }   
+        $sampleAElement.onmouseup = function ( $event ) {
+            if( $event.button == 0 ){
+                // ポンプ停止を送信
+            }
+        }
+    </script>
+    <button type="button" id="req_start" class="start_button">Run</button>
+
+</body>
+</html>
