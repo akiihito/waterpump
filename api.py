@@ -78,8 +78,9 @@ async def api(command: str, duration: int = 2, speed: int = 20):
         running_pump = drain
     if duration != 0:
         timer = CustomThread(target=task, args=(running_pump, duration), daemon=True)
+        running_pump.start()
         timer.start()
-        
+
     return {"cmd": command, "duration": duration, "speed": speed}
 
 if __name__ == "__main__":
