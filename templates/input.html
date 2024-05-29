@@ -8,39 +8,65 @@
 
 </head>
 <body>
-    <input id="speed" max="100" min="0" type="range" value="100" /><br>
-    SPEED (Duty):<span class="range-value-result">100</span>
+    <fieldset>
+    <input type="radio" id="radio_apply" name="pump_direction" value="supply" />
+    <label for="radio_apply">給水</label>
+    <input type="radio" id="radio_drain" name="pump_direction" value="drain" />
+    <label for="radio_drain">排水</label>
+    </fieldset>
+
+    <input id="speed" max="70" min="0" type="range" value="20" />
+    SPEED (Duty):<span class="speed-value">20</span><br>   
+    <input id="duration" max="30" min="0" type="range" value="5" />
+    Duration (sec):<span class="duration-value">5</span><br>
+    <hr>
+    <button type="button" id="req_start">Run</button>
+    <button type="button" id="req_stop">Stop</button>
+    <br><span class="msg">message</span>
     <script>
         $(speed).on("input", function (e) {
-            var range = e.target
-            $(".range-value-result").text(range.value)
+            range = e.target
+            $(".speed-value").text(range.value)
+        })
+        $(duration).on("input", function (e) {
+            range = e.target
+            $(".duration-value").text(range.value)
         })
 
+        // ポンプの作動をスピード付きで送信
+        const startbutton = document.getElementById("req_start");
+        startbutton.addEventListener("click", () => {
+            $(".msg").text("start button pushed")
+            // 給排水方向を取得
+            const radio_check = document.getElementsByName('pump_direction');
+            let direction = '';
+            console.log(radio_check.length)
+            for (let i = 0; i < radio_check.length; i++){
+                if (radio_check.item(i).checked){
+                    direction = radio_check.item(i).value;
+                }
+            }
+            if (direction.length != 0) {
+                const Http = new XMLHttpRequest();
+                const duration = document.getElementById("duration")
+                const speed = document.getElementById("speed")
+                const url = 'http://192.168.1.52:8000/api/' + direction + '?duration=' + String(duration.value) + '&speed=' + String(speed.value);
+                Http.open("GET", url);
+                Http.send();
+            } else {
+                alert("You must check the \"apply\" or \"drain\" before starting pump")
+            }
+        });
 
-        const startbutton = document.querySelector(".start_button");
-        const stopbutton  = document.querySelector(".stop_button");
-
-        startbutton.addEventListener("click", startpump);
-        stopbutton.addEventListener("click", stoppump);
-
-        function startpump() {
-            // ポンプの作動をスピード付きで送信
+        // ポンプの停止をスピード付きで送信
+        const stopbutton  = document.getElementById("req_stop");
+        stopbutton.addEventListener("click", () => {
+            $(".msg").text("stop button pushed")
             const Http = new XMLHttpRequest();
-            const url='http://192.168.1.52:8000/api/supply?duration=10';
+            const url = 'http://192.168.1.52:8000/api/stop';
             Http.open("GET", url);
             Http.send();
-        }
-        function stoppump() {
-            // ポンプの作動をスピード付きで送信
-            const Http = new XMLHttpRequest();
-            const url='http://192.168.1.52:8000/api/stop';
-            Http.open("GET", url);
-            Http.send();
-        }
-
+        });
     </script>
-    <button type="button" id="req_start" class="start_button">Run</button>
-    <button type="button" id="req_stop" class="stop_button">Stop</button>
-
 </body>
 </html>
