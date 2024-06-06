@@ -28,17 +28,15 @@
         // データ更新
         function onRefresh(chart) {
 	        var now = Date.now();
-            var val = 0;
             socket.on("ack", function(d) {
                 console.log("recieved ack")
-                val = d.value
+                chart.data.datasets.forEach(function(dataset) {
+		            dataset.data.push({
+			            x: now,
+                        y: d.value
+		            });
+	            });
             });
-            chart.data.datasets.forEach(function(dataset) {
-		        dataset.data.push({
-			        x: now,
-                    y: val
-		        });
-	        });
             socket.emit("req_data")
         }
 
