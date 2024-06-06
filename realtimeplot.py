@@ -25,7 +25,8 @@ if __name__ == '__main__':
     
     @socketio.on('req_data')
     def handle_req_data():
-        socketio.emit('ack', {'value': 1})
+        value = float(readSer.readline().strip())
+        socketio.emit('ack', {'value': value})
     
 
     # With debug mode on, print message in Worker class will be printed twice.
