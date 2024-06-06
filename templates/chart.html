@@ -28,16 +28,18 @@
         // データ更新
         function onRefresh(chart) {
 	        var now = Date.now();
+            let val = 0;
             socket.on("ack", function(d) {
                 console.log("recieved ack")
-                chart.data.datasets.forEach(function(dataset) {
-		            dataset.data.push({
-			            x: now,
-                        y: d.value
-		            });
-	            });
+                val = d.value;
             });
             socket.emit("req_data")
+            chart.data.datasets.forEach(function(dataset) {
+		        dataset.data.push({
+			        x: now,
+                    y: val
+		        });
+	        });
         }
 
         var color = Chart.helpers.color;
