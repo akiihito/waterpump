@@ -45,6 +45,7 @@
 		        datasets: [
                     {
 			            label: 'Dataset 1 (Water Level)',
+                        fontSize: 20,
 			            backgroundColor: color(chartColors.red).alpha(0.5).rgbString(),
 			            borderColor: chartColors.red,
 			            fill: false,
@@ -57,7 +58,8 @@
 	        options: {
 		        title: {
 			        display: true,
-			        text: 'Experimental Water Level Sensor'
+			        text: 'Experimental Water Level Sensor',
+                    fontSize: 20
 		        },
 		        scales: {
 			        xAxes: [{
@@ -72,7 +74,8 @@
 			        yAxes: [{
 				        scaleLabel: {
 					        display: true,
-					        labelString: 'value'
+					        labelString: 'Water Level (cm)',
+                            fontSize: 20
 				        }
 			        }]
 		        },
