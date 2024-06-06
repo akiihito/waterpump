@@ -20,6 +20,7 @@
         };
 
         var socket = io.connect("http://" + document.domain + ":" + location.port);
+        var val;
 
         function randomScalingFactor() {
 	        return (Math.random() > 0.5 ? 1.0 : -1.0) * Math.round(Math.random() * 100);
@@ -28,7 +29,6 @@
         // データ更新
         function onRefresh(chart) {
 	        var now = Date.now();
-            var val = 0;
             socket.on("ack", function(d) {
                 console.log("recieved ack")
                 val = d.value;
