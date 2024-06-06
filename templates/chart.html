@@ -28,7 +28,7 @@
         // データ更新
         function onRefresh(chart) {
 	        var now = Date.now();
-            let val = 0;
+            var val = 0;
             socket.on("ack", function(d) {
                 console.log("recieved ack")
                 val = d.value;
