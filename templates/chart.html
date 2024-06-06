@@ -28,10 +28,17 @@
         // データ更新
         function onRefresh(chart) {
 	        var now = Date.now();
+            var val = 0;
+            socket.on("ack", function(d) {
+                console.log("recieved ack")
+                val = d.value;
+            });
+            socket.emit("req_data")
 	        chart.data.datasets.forEach(function(dataset) {
 		        dataset.data.push({
 			        x: now,
-			        y: randomScalingFactor()
+                    y: val
+			        //y: randomScalingFactor()
 		        });
 	        });
         }

@@ -23,6 +23,11 @@ if __name__ == '__main__':
     def hello_world():
         return render_template('chart.html')
     
+    @socketio.on('req_data')
+    def handle_req_data(data):
+        socketio.emit('ack', {'value': 1})
+    
+
     # With debug mode on, print message in Worker class will be printed twice.
     # https://stackoverflow.com/questions/57344224/thread-is-printing-two-times-at-same-loop
     #app.run(host="0.0.0.0", port=5000, debug=True)
