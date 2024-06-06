@@ -2,17 +2,12 @@
 	<script src="https://cdn.jsdelivr.net/npm/moment@2.29.1/min/moment.min.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4"></script>
 	<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-streaming@1.9.0"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
 </head>
 <body>
 	<div>
 		<canvas id="myChart"></canvas>
 	</div>
-	<p>
-		<button id="randomizeData">Randomize Data</button>
-		<button id="addDataset">Add Dataset</button>
-		<button id="removeDataset">Remove Dataset</button>
-		<button id="addData">Add Data</button>
-	</p>
     <script>
         var chartColors = {
 	        red: 'rgb(255, 99, 132)',
@@ -23,6 +18,8 @@
 	        purple: 'rgb(153, 102, 255)',
 	        grey: 'rgb(201, 203, 207)'
         };
+
+        var socket = io.connect("http://" + document.domain + ":" + location.port);
 
         function randomScalingFactor() {
 	        return (Math.random() > 0.5 ? 1.0 : -1.0) * Math.round(Math.random() * 100);
