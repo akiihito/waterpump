@@ -22,10 +22,6 @@
         var socket = io.connect("http://" + document.domain + ":" + location.port);
         var val;
 
-        function randomScalingFactor() {
-	        return (Math.random() > 0.5 ? 1.0 : -1.0) * Math.round(Math.random() * 100);
-        }
-
         // データ更新
         function onRefresh(chart) {
 	        var now = Date.now();
@@ -48,7 +44,7 @@
 	        data: {
 		        datasets: [
                     {
-			            label: 'Dataset 1 (linear interpolation)',
+			            label: 'Dataset 1 (Water Level)',
 			            backgroundColor: color(chartColors.red).alpha(0.5).rgbString(),
 			            borderColor: chartColors.red,
 			            fill: false,
@@ -61,7 +57,7 @@
 	        options: {
 		        title: {
 			        display: true,
-			        text: 'Line chart (hotizontal scroll) sample'
+			        text: 'Experimental Water Level Sensor'
 		        },
 		        scales: {
 			        xAxes: [{
