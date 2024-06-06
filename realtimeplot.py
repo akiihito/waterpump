@@ -24,7 +24,7 @@ if __name__ == '__main__':
         return render_template('chart.html')
     
     @socketio.on('req_data')
-    def handle_req_data(data):
+    def handle_req_data():
         socketio.emit('ack', {'value': 1})
     
 
