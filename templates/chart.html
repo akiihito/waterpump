@@ -45,7 +45,6 @@
 		        datasets: [
                     {
 			            label: 'Dataset 1 (Water Level)',
-                        fontSize: 20,
 			            backgroundColor: color(chartColors.red).alpha(0.5).rgbString(),
 			            borderColor: chartColors.red,
 			            fill: false,
@@ -69,7 +68,12 @@
 					        refresh: 1000,
 					        delay: 2000,
 					        onRefresh: onRefresh
-				        }
+				        },
+                        scaleLabel: {
+                            display: true,
+					        labelString: 'Time',
+                            fontSize: 20
+                        }
 			        }],
 			        yAxes: [{
 				        scaleLabel: {
