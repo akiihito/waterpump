@@ -34,7 +34,7 @@ if __name__ == '__main__':
         socketio.emit('ack', {'value': value})
     
     #socketio.start_background_task(bgTask)
-    thread = threading.Thread(target=bgTask, name='background task', deamon=True)
+    thread = threading.Thread(target=bgTask, name='background task', daemon=True)
     thread.start()
 
     # With debug mode on, print message in Worker class will be printed twice.
