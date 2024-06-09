@@ -14,6 +14,7 @@ value = 0
 
 
 def bgTask():
+    global value
     while(True):
         value = float(readSer.readline().strip())
         time.sleep(100)
