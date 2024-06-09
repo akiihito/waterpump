@@ -1,4 +1,5 @@
 import argparse
+from time import time
 import serial
 from flask import Flask, render_template
 from flask_socketio import SocketIO
@@ -9,10 +10,13 @@ parser.add_argument('-d', '--device', type=str, default='/dev/serial0', help='a 
 args = parser.parse_args()
 
 readSer = serial.Serial(args.device, 9600, timeout=3)
+value = 0
+
 
 def bgTask():
-    value = float(readSer.readline().strip())
-    print(value)
+    while(True):
+        value = float(readSer.readline().strip())
+        time.sleep(100)
 
 
 if __name__ == '__main__':
@@ -25,9 +29,10 @@ if __name__ == '__main__':
     
     @socketio.on('req_data')
     def handle_req_data():
-        value = float(readSer.readline().strip())
+        #value = float(readSer.readline().strip())
         socketio.emit('ack', {'value': value})
     
+    socketio.start_background_task(bgTask)
 
     # With debug mode on, print message in Worker class will be printed twice.
     # https://stackoverflow.com/questions/57344224/thread-is-printing-two-times-at-same-loop
