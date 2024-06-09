@@ -1,4 +1,5 @@
 import argparse
+import threading
 from time import time
 import serial
 from flask import Flask, render_template
@@ -14,7 +15,6 @@ value = 0
 
 
 def bgTask():
-    global value
     while(True):
         value = float(readSer.readline().strip())
         time.sleep(100)
@@ -33,7 +33,9 @@ if __name__ == '__main__':
         #value = float(readSer.readline().strip())
         socketio.emit('ack', {'value': value})
     
-    socketio.start_background_task(bgTask)
+    #socketio.start_background_task(bgTask)
+    thread = threading.Thread(target=bgTask, name='background task', deamon=True)
+    thread.start()
 
     # With debug mode on, print message in Worker class will be printed twice.
     # https://stackoverflow.com/questions/57344224/thread-is-printing-two-times-at-same-loop
