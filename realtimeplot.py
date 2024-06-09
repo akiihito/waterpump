@@ -1,6 +1,6 @@
 import argparse
 import threading
-from time import time
+import time
 import serial
 from flask import Flask, render_template
 from flask_socketio import SocketIO
@@ -13,12 +13,11 @@ args = parser.parse_args()
 readSer = serial.Serial(args.device, 9600, timeout=3)
 value = 0
 
-
 def bgTask():
     while(True):
+        global value
         value = float(readSer.readline().strip())
-        time.sleep(100)
-
+        time.sleep(0.1)
 
 if __name__ == '__main__':
     app = Flask(__name__)
@@ -30,6 +29,7 @@ if __name__ == '__main__':
     
     @socketio.on('req_data')
     def handle_req_data():
+        global value
         #value = float(readSer.readline().strip())
         socketio.emit('ack', {'value': value})
     
