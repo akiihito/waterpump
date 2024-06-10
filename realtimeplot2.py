@@ -32,8 +32,11 @@ def pause_plot():
     # ここから無限にplotする
     while True:
         # plotデータの更新
+        value = float(readSer.readline().strip())
+        print(value)
         x += 0.1
-        y = float(readSer.readline().strip())
+        y = np.delete(y, 0, None)
+        y = np.append(y, value)
 
         # 描画データを更新するときにplot関数を使うと
         # lineオブジェクトが都度増えてしまうので，注意．
