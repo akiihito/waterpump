@@ -5,10 +5,10 @@ matplotlibでリアルタイムプロットする例
 無限にsin関数をplotし続ける
 """
 from __future__ import unicode_literals, print_function
-
+import math
 import numpy as np
 import matplotlib.pyplot as plt
-import serial
+import awsclient
 import argparse
 
 parser = argparse.ArgumentParser(description="realtime plot app on a web browser")
@@ -17,25 +17,37 @@ args = parser.parse_args()
 
 def pause_plot():
 
-    readSer = serial.Serial(args.device, 9600, timeout=3)
+    readSer = awsclient.Serial(args.device, 9600, timeout=3)
     value = 0.0
 
     fig, ax = plt.subplots(1, 1)
+    # ax.set_aspect(0.5)
     #x = np.arange(-np.pi, np.pi, 0.1)
-    x = np.arange(0, 10, 0.1)
-    y = np.arange(-1, 1, 0.02)
+    x = np.arange(0, 512, 0.5)
+    y = np.arange(0, 1024, 1)
     # 初期化的に一度plotしなければならない
     # そのときplotしたオブジェクトを受け取る受け取る必要がある．
     # listが返ってくるので，注意
     lines, = ax.plot(x, y)
 
+    # x 軸のラベルを設定する。
+    ax.set_xlabel("Time (second)")
+
+    # y 軸のラベルを設定する。
+    ax.set_ylabel("Water Level")
+
+    # タイトルを設定する。
+    ax.set_title("Water Level Measurement")
+
     # ここから無限にplotする
     while True:
         # plotデータの更新
         value = float(readSer.readline().strip())
+        #print(math.pow(value * 0.01, 2))
         print(value)
         x += 0.1
         y = np.delete(y, 0, None)
+        #y = np.append(y, math.pow(value * 0.01, 2))
         y = np.append(y, value)
 
         # 描画データを更新するときにplot関数を使うと

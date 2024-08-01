@@ -4,6 +4,7 @@ import uvicorn
 import argparse
 import threading
 from controller import Controller
+from awsclient import AWSClient
 import ctypes
 
 parser = argparse.ArgumentParser(description="two water pump controller")
@@ -58,6 +59,9 @@ running_pump : Controller = None
 ## 実行中の停止タイマー
 worker : CustomThread
 
+## AWSクライアント（今の所はシリアル通信）
+awsclient = AWSClient('/dev/ttyS0', 115200)
+
 @app.get("/")
 async def root():
     return {"message": "Hello World"}
@@ -79,9 +83,11 @@ async def api(command: str, duration: int = 2, speed: int = 20):
     
     ## 給水・排水方向の設定
     if command == 'supply' and running_pump == None:
+        awsclient.send_supply()
         running_pump = supply
         msg = "supply pump start"
     elif command == 'drain' and running_pump == None:
+        awsclient.send_drain()
         running_pump = drain
         msg = "drain pump start"
     else:
