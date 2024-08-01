@@ -1,7 +1,7 @@
 import argparse
 import threading
 import time
-import serial
+import awsclient
 from flask import Flask, render_template
 from flask_socketio import SocketIO
 import argparse
@@ -10,7 +10,8 @@ parser = argparse.ArgumentParser(description="realtime plot app on a web browser
 parser.add_argument('-d', '--device', type=str, default='/dev/serial0', help='a device file connected to arduino')
 args = parser.parse_args()
 
-readSer = serial.Serial(args.device, 9600, timeout=3)
+readSer = awsclient.Serial(args.device, 9600, timeout=3)
+readSer.flush()
 value = 0
 
 def bgTask():
