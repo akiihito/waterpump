@@ -11,6 +11,7 @@ class Controller:
         self.duty = 10
         self.m1pin = m1pin
         self.m2pin = m2pin
+        self.max_duty = 80
 
         if self.testmode:
             print(' -- (TEST MODE) --')
@@ -55,7 +56,7 @@ class Controller:
             GPIO.cleanup()
 
     def speed(self, duty) -> None:
-        if 0 < duty and duty < 50:
+        if 0 < duty and duty < self.max_duty:
             self.motor.ChangeDutyCycle(duty)
         else:
             print("duty value exceed what we expect :", duty)

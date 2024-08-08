@@ -64,7 +64,47 @@ awsclient = AWSClient('/dev/ttyS0', 115200)
 
 @app.get("/")
 async def root():
-    return {"message": "Hello World"}
+    return {"message": "Water pump control API"}
+
+
+@app.get("/api2/{command}")
+async def api(command: str, duration: int = 5, ratio: int = 20, speed: int = 70):
+    global running_pump
+    global worker
+
+    if command == 'stop' and running_pump != None:
+        running_pump.stop()
+        running_pump = None
+        worker.raise_exception()
+        duration = 0
+        speed = 0
+        msg = "stop pump"
+        return {"cmd": command, "duration": duration, "ratio": ratio, "sppeed": speed, "message": msg}
+
+   ## 給水・排水方向の設定
+    if command == 'supply' and running_pump == None:
+        awsclient.send_supply()
+        running_pump = supply
+        msg = "supply pump start"
+    elif command == 'drain' and running_pump == None:
+        awsclient.send_drain()
+        running_pump = drain
+        msg = "drain pump start"
+    else:
+        msg = "pump has already started"
+        return {"cmd": command, "duration": duration, "ratio": ratio, "sppeed": speed, "message": msg}
+
+    ## 実行時間の設定
+    worker = CustomThread(target=task, args=(duration,))
+
+    ## 給排水の実行と停止タイマーの起動
+    running_pump.speed(speed)
+    running_pump.start()
+    worker.start()
+ 
+    return {"cmd": command, "duration": duration, "ratio": ratio, "sppeed": speed, "message": msg}
+
+
 
 @app.get("/api/{command}")
 async def api(command: str, duration: int = 2, speed: int = 20):

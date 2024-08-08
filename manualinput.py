@@ -1,10 +1,16 @@
 from flask_socketio import SocketIO
 from flask import Flask, render_template
+from fastapi.responses import RedirectResponse
+
 
 
 if __name__ == '__main__':
     app = Flask(__name__)
     socketio = SocketIO(app)
+
+    @app.get('/')
+    def redirect():
+        return RedirectResponse('/manual')
 
     @app.route("/manual")
     def hello_world():
