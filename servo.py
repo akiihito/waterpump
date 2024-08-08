@@ -20,7 +20,7 @@ class Servo:
             #Duty Cycle 0%
             self.sv.start(0.0)
 
-    def _ratio2duty(ratio: int) -> float:
+    def _ratio2duty(self, ratio: int) -> float:
         # roughly...
         # 100%->7.3, 70%->6.5, 40%->6.0, 10%->5.5, 0%->5.0
         dutyrange = 2.3
