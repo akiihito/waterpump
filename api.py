@@ -59,7 +59,7 @@ drain.speed(args.speed)
 
 ## 給水・排水バルブのサーボモーター
 supply_sv = Servo(23, args.test)
-drain_sv = Servo(22, args.test)
+#drain_sv = Servo(22, args.test)
 
 ## 実行中のポンプ（給水 or 排水）
 running_pump : Controller = None
@@ -100,7 +100,7 @@ async def api(command: str, duration: int = 5, speed: int = 70, ratio: int = 20)
     elif command == 'drain' and running_pump == None:
         awsclient.send_drain()
         running_pump = drain
-        running_servo = drain_sv
+        #running_servo = drain_sv
         msg = "drain pump start"
     else:
         msg = "pump has already started"
