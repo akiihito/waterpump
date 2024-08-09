@@ -5,6 +5,8 @@ import RPi.GPIO as GPIO
 class Servo:
     def __init__(self, pwmpin: int, testmode: bool, freq: int = 50) -> None:
 
+        GPIO.cleanup()
+        
         self.testmode = testmode
         self.freq = freq
 
