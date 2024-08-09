@@ -14,7 +14,8 @@ if __name__ == '__main__':
 
     @app.route("/manual")
     def hello_world():
-        return render_template('input.html')
+        #return render_template('input.html')
+        return render_template('input2.html')
     
     # With debug mode on, print message in Worker class will be printed twice.
     # https://stackoverflow.com/questions/57344224/thread-is-printing-two-times-at-same-loop

@@ -68,7 +68,7 @@ async def root():
 
 
 @app.get("/api2/{command}")
-async def api(command: str, duration: int = 5, ratio: int = 20, speed: int = 70):
+async def api(command: str, duration: int = 5, speed: int = 70, ratio: int = 20):
     global running_pump
     global worker
 
@@ -79,7 +79,7 @@ async def api(command: str, duration: int = 5, ratio: int = 20, speed: int = 70)
         duration = 0
         speed = 0
         msg = "stop pump"
-        return {"cmd": command, "duration": duration, "ratio": ratio, "sppeed": speed, "message": msg}
+        return {"cmd": command, "duration": duration, "sppeed": speed, "ratio": ratio, "message": msg}
 
    ## 給水・排水方向の設定
     if command == 'supply' and running_pump == None:
@@ -92,7 +92,7 @@ async def api(command: str, duration: int = 5, ratio: int = 20, speed: int = 70)
         msg = "drain pump start"
     else:
         msg = "pump has already started"
-        return {"cmd": command, "duration": duration, "ratio": ratio, "sppeed": speed, "message": msg}
+        return {"cmd": command, "duration": duration, "sppeed": speed, "ratio": ratio, "message": msg}
 
     ## 実行時間の設定
     worker = CustomThread(target=task, args=(duration,))
@@ -102,7 +102,7 @@ async def api(command: str, duration: int = 5, ratio: int = 20, speed: int = 70)
     running_pump.start()
     worker.start()
  
-    return {"cmd": command, "duration": duration, "ratio": ratio, "sppeed": speed, "message": msg}
+    return {"cmd": command, "duration": duration, "sppeed": speed, "ratio": ratio, "message": msg}
 
 
 

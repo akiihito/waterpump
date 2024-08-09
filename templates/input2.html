@@ -20,6 +20,9 @@
     <input id="duration" max="30" min="0" type="range" value="5" />
     Duration (sec):<span class="duration-value">5</span><br>
     <hr>
+    <input id="ratio" max="100" min="0" type="range" value="5" />
+    Duration (sec):<span class="ratio-value">5</span><br>
+    <hr>
 
     <button type="button" id="req_start">Run</button>
     <button type="button" id="req_stop">Stop</button>
@@ -32,6 +35,10 @@
         $(duration).on("input", function (e) {
             range = e.target
             $(".duration-value").text(range.value)
+        })
+        $(ratio).on("input", function (e) {
+            range = e.target
+            $(".ratio-value").text(range.value)
         })
 
         // ポンプの作動をスピード付きで送信
@@ -51,7 +58,8 @@
                 const Http = new XMLHttpRequest();
                 const duration = document.getElementById("duration")
                 const speed = document.getElementById("speed")
-                const url = 'http://192.168.1.52:8000/api/' + direction + '?duration=' + String(duration.value) + '&speed=' + String(speed.value);
+                const ratio = document.getElementById("ratio")
+                const url = 'http://192.168.1.52:8000/api2/' + direction + '?duration=' + String(duration.value) + '&speed=' + String(speed.value) + '&ratio=' + String(ratio.value);
                 Http.open("GET", url);
                 Http.send();
             } else {
