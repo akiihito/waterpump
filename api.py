@@ -5,6 +5,7 @@ import argparse
 import threading
 from controller import Controller
 from awsclient import AWSClient
+from servo import Servo
 import ctypes
 
 parser = argparse.ArgumentParser(description="two water pump controller")
@@ -44,7 +45,9 @@ def task(t:int):
     sleep(t)
     if running_pump != None:
         running_pump.stop()
+        running_servo.delete()
         running_pump = None
+        running_servo = None
 
 app = FastAPI()
 
@@ -54,8 +57,13 @@ drain = Controller(motorid=2, m1pin=20, m2pin=21, pwmpin=26, testmode=args.test)
 supply.speed(args.speed)
 drain.speed(args.speed)
 
+## 給水・排水バルブのサーボモーター
+supply_sv = Servo(23, args.test)
+drain_sv = Servo(23, args.test)
+
 ## 実行中のポンプ（給水 or 排水）
 running_pump : Controller = None
+running_servo : Servo = None
 ## 実行中の停止タイマー
 worker : CustomThread
 
@@ -74,6 +82,8 @@ async def api(command: str, duration: int = 5, speed: int = 70, ratio: int = 20)
 
     if command == 'stop' and running_pump != None:
         running_pump.stop()
+        running_pump.delete()
+        running_pump = None
         running_pump = None
         worker.raise_exception()
         duration = 0
@@ -85,10 +95,12 @@ async def api(command: str, duration: int = 5, speed: int = 70, ratio: int = 20)
     if command == 'supply' and running_pump == None:
         awsclient.send_supply()
         running_pump = supply
+        running_servo = supply_sv
         msg = "supply pump start"
     elif command == 'drain' and running_pump == None:
         awsclient.send_drain()
         running_pump = drain
+        running_servo = drain_sv
         msg = "drain pump start"
     else:
         msg = "pump has already started"
@@ -100,10 +112,10 @@ async def api(command: str, duration: int = 5, speed: int = 70, ratio: int = 20)
     ## 給排水の実行と停止タイマーの起動
     running_pump.speed(speed)
     running_pump.start()
+    running_servo.valve_open(ratio)
     worker.start()
  
     return {"cmd": command, "duration": duration, "speed": speed, "ratio": ratio, "message": msg}
-
 
 
 @app.get("/api/{command}")
