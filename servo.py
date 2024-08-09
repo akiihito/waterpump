@@ -38,9 +38,13 @@ class Servo:
             pass
         else:
             self.sv.ChangeDutyCycle(duty)
-        self.sv.ChangeDutyCycle(0.0)
 
 
+    def delete(self) -> None:
+        if self.testmode:
+            pass
+        else:
+            GPIO.cleanup()
 
 if __name__ == "__main__":
     sv = Servo(23, False)

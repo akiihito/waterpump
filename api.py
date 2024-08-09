@@ -45,7 +45,6 @@ def task(t:int):
     sleep(t)
     if running_pump != None:
         running_pump.stop()
-        running_servo.delete()
         running_pump = None
         running_servo = None
 
