@@ -84,7 +84,7 @@ async def api(command: str, duration: int = 5, speed: int = 70, ratio: int = 20)
         running_pump.stop()
         running_pump.delete()
         running_pump = None
-        running_pump = None
+        running_servo = None
         worker.raise_exception()
         duration = 0
         speed = 0
