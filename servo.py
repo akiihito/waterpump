@@ -44,7 +44,8 @@ class Servo:
         if self.testmode:
             pass
         else:
-            GPIO.cleanup()
+            self.sv.stop()
+
 
 if __name__ == "__main__":
     sv = Servo(23, False)
