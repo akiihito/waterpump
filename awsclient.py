@@ -14,5 +14,6 @@ class AWSClient:
 
 if __name__ == "__main__":
     # temporally use serial line, instead of updating AWS IoT shadow
-    client = AWSClient('/dev/ttyS0', 115200)
-    client.send_drain()
+    # client = AWSClient('/dev/ttyS0', 115200)
+    # client.send_drain()
+    pass
