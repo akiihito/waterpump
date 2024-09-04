@@ -48,11 +48,20 @@ class Servo:
 
 
 if __name__ == "__main__":
-    sv = Servo(23, False)
-    sv.valve_open(30)
+    sv1 = Servo(pwmpin=22, testmode=False)
+    sv2 = Servo(pwmpin=23, testmode=False)
+    sv1.valve_open(30)
     time.sleep(2)
-    sv.valve_open(60)
+    sv1.valve_open(60)
     time.sleep(2)
-    sv.valve_open(90)
+    sv1.valve_open(90)
     time.sleep(2)
-    sv.delete()
+    sv2.valve_open(30)
+    time.sleep(2)
+    sv2.valve_open(60)
+    time.sleep(2)
+    sv2.valve_open(90)
+    time.sleep(2)
+
+    sv1.delete()    
+    sv2.delete()
