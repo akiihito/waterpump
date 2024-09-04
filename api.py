@@ -58,61 +58,59 @@ drain.speed(args.speed)
 
 ## 給水・排水バルブのサーボモーター
 supply_sv = Servo(pwmpin=23, testmode=args.test)
-#drain_sv = Servo(22, args.test)
-
+drain_sv  = Servo(pwmpin=22, testmode=args.test)
 ## 実行中のポンプ（給水 or 排水）
-running_pump : Controller = None
-running_servo : Servo = None
+running_pump  : Controller
+## 実行中のバルブサーボ（給水 or 排水）
+running_servo : Servo
 ## 実行中の停止タイマー
 worker : CustomThread
+## AWSクライアント
+awsclient = AWSClient()
 
-## AWSクライアント（今の所はシリアル通信）
-awsclient = AWSClient('/dev/ttyS0', 115200)
-
+############ fastAPI ###############
 @app.get("/")
 async def root():
     return {"message": "Water pump control API"}
 
-
 @app.get("/api2/{command}")
 async def api(command: str, duration: int = 5, speed: int = 70, ratio: int = 20):
     global running_pump
+    global running_servo
     global worker
 
-    if command == 'stop' and running_pump != None:
-        running_pump.stop()
-        running_pump.delete()
-        running_pump = None
-        running_servo = None
-        worker.raise_exception()
-        duration = 0
-        speed = 0
-        msg = "stop pump"
-        return {"cmd": command, "duration": duration, "speed": speed, "ratio": ratio, "message": msg}
+    if running_pump == None:
+        ## 給水・排水方向の設定
+        if command == 'supply':
+            awsclient.send_supply()
+            running_pump = supply
+            running_servo = supply_sv
+            msg = "supply pump start"
+        elif command == 'drain':
+            awsclient.send_drain()
+            running_pump = drain
+            #running_servo = drain_sv
+            msg = "drain pump start"
 
-   ## 給水・排水方向の設定
-    if command == 'supply' and running_pump == None:
-        awsclient.send_supply()
-        running_pump = supply
-        running_servo = supply_sv
-        msg = "supply pump start"
-    elif command == 'drain' and running_pump == None:
-        awsclient.send_drain()
-        running_pump = drain
-        #running_servo = drain_sv
-        msg = "drain pump start"
+        ## 実行時間の設定
+        worker = CustomThread(target=task, args=(duration,))
+        ## 給排水の実行と停止タイマーの起動
+        running_pump.speed(speed)
+        running_pump.start()
+        running_servo.valve_open(ratio)
+        worker.start()
     else:
-        msg = "pump has already started"
-        return {"cmd": command, "duration": duration, "speed": speed, "ratio": ratio, "message": msg}
-
-    ## 実行時間の設定
-    worker = CustomThread(target=task, args=(duration,))
-
-    ## 給排水の実行と停止タイマーの起動
-    running_pump.speed(speed)
-    running_pump.start()
-    running_servo.valve_open(ratio)
-    worker.start()
+        if command == 'stop':
+            running_pump.stop()
+            running_pump.delete()
+            running_pump = None
+            running_servo = None
+            worker.raise_exception()
+            duration = 0
+            speed = 0
+            msg = "stop pump"
+        else:
+            msg = "pump has already started"
  
     return {"cmd": command, "duration": duration, "speed": speed, "ratio": ratio, "message": msg}
 
@@ -121,39 +119,38 @@ async def api(command: str, duration: int = 5, speed: int = 70, ratio: int = 20)
 async def api(command: str, duration: int = 2, speed: int = 20):
     global running_pump
     global worker
-
-    if command == 'stop' and running_pump != None:
-        running_pump.stop()
-        running_pump = None
-        worker.raise_exception()
-        duration = 0
-        speed = 0
-        msg = "stop pump"
-        return {"cmd": command, "duration": duration, "speed": speed, "message": msg}
-
     
     ## 給水・排水方向の設定
-    if command == 'supply' and running_pump == None:
-        awsclient.send_supply()
-        running_pump = supply
-        msg = "supply pump start"
-    elif command == 'drain' and running_pump == None:
-        awsclient.send_drain()
-        running_pump = drain
-        msg = "drain pump start"
+    if running_pump == None:
+        if command == 'supply' and running_pump == None:
+            awsclient.send_supply()
+            running_pump = supply
+            msg = "supply pump start"
+        elif command == 'drain' and running_pump == None:
+            awsclient.send_drain()
+            running_pump = drain
+            msg = "drain pump start"
+
+        ## 実行時間の設定
+        worker = CustomThread(target=task, args=(duration,))
+        ## 給排水の実行と停止タイマーの起動
+        running_pump.speed(speed)
+        running_pump.start()
+        worker.start()
     else:
-        msg = "pump has already started"
-        return {"cmd": command, "duration": duration, "speed": speed, "message": msg}
-
-    ## 実行時間の設定
-    worker = CustomThread(target=task, args=(duration,))
-
-    ## 給排水の実行と停止タイマーの起動
-    running_pump.speed(speed)
-    running_pump.start()
-    worker.start()
- 
+        if command == 'stop':
+            running_pump.stop()
+            running_pump = None
+            worker.raise_exception()
+            duration = 0
+            speed = 0
+            msg = "stop pump"
+        else:
+            msg = "pump has already started"
     return {"cmd": command, "duration": duration, "speed": speed, "message": msg}
 
+
 if __name__ == "__main__":
+    running_pump  = None
+    running_servo = None
     uvicorn.run(app, host="0.0.0.0", port=8000, log_level="debug")
