@@ -39,6 +39,7 @@ class Servo:
         else:
             self._start()
             self.sv.ChangeDutyCycle(duty)
+            time.sleep(0.5)
             self._stop()
 
     def _start(self) -> None:
