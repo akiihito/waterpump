@@ -50,6 +50,8 @@ class Servo:
 if __name__ == "__main__":
     sv1 = Servo(pwmpin=22, testmode=False)
     sv2 = Servo(pwmpin=23, testmode=False)
+    sv1.valve_open(0)
+    sv2.valve_open(0)
     sv1.valve_open(30)
     time.sleep(2)
     sv1.valve_open(60)

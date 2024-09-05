@@ -57,8 +57,8 @@ supply.speed(args.speed)
 drain.speed(args.speed)
 
 ## 給水・排水バルブのサーボモーター
-supply_sv = Servo(pwmpin=23, testmode=args.test)
-drain_sv  = Servo(pwmpin=22, testmode=args.test)
+supply_sv = Servo(pwmpin=22, testmode=args.test)
+drain_sv  = Servo(pwmpin=23, testmode=args.test)
 ## 実行中のポンプ（給水 or 排水）
 running_pump  : Controller
 ## 実行中のバルブサーボ（給水 or 排水）
