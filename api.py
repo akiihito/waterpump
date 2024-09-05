@@ -73,6 +73,16 @@ awsclient = AWSClient()
 async def root():
     return {"message": "Water pump control API"}
 
+@app.get("/api2/servo")
+async def api(ratio: int = 20):
+    global running_servo
+    if running_pump == None:
+        msg = "No servo running..."
+    else:
+        running_servo.valve_open(ratio=ratio)
+    return {"cmd": "api2/servo", "ratio": ratio, "message": msg}
+
+
 @app.get("/api2/{command}")
 async def api(command: str, duration: int = 5, speed: int = 70, ratio: int = 20):
     global running_pump
@@ -89,7 +99,7 @@ async def api(command: str, duration: int = 5, speed: int = 70, ratio: int = 20)
         elif command == 'drain':
             awsclient.send_drain()
             running_pump = drain
-            #running_servo = drain_sv
+            running_servo = drain_sv
             msg = "drain pump start"
 
         ## 実行時間の設定

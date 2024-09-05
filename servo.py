@@ -18,7 +18,7 @@ class Servo:
 
             self.sv = GPIO.PWM(pwmpin, self.freq)
             #Duty Cycle 0%
-            self.sv.start(0.0)
+            #self.sv.start(0.0)
 
     def _ratio2duty(self, ratio: int) -> float:
         # roughly...
@@ -37,10 +37,17 @@ class Servo:
         if self.testmode:
             pass
         else:
+            self._start()
             self.sv.ChangeDutyCycle(duty)
+            self._stop()
 
+    def _start(self) -> None:
+        if self.testmode:
+            pass
+        else:
+            self.sv.start(0.0)
 
-    def delete(self) -> None:
+    def _stop(self) -> None:
         if self.testmode:
             pass
         else:
@@ -64,6 +71,3 @@ if __name__ == "__main__":
     time.sleep(2)
     sv2.valve_open(90)
     time.sleep(2)
-
-    sv1.delete()    
-    sv2.delete()
