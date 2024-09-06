@@ -18,7 +18,7 @@ class Servo:
 
             self.sv = GPIO.PWM(pwmpin, self.freq)
             #Duty Cycle 0%
-            #self.sv.start(0.0)
+            self.sv.start(0.0)
 
     def _ratio2duty(self, ratio: int) -> float:
         # roughly...
@@ -37,10 +37,9 @@ class Servo:
         if self.testmode:
             pass
         else:
-            self._start()
             self.sv.ChangeDutyCycle(duty)
+            # sleep till servo finish to move
             time.sleep(0.5)
-            self._stop()
 
     def _start(self) -> None:
         if self.testmode:
