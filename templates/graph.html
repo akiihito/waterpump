@@ -1,0 +1,255 @@
+
+<!DOCTYPE HTML>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>Chart.jsでボタンをクリックしてグラフを更新するサンプル</title>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.bundle.js"></script>
+<style>
+    hr {
+        border: none;
+        border-top: 2px dotted black;
+    }
+</style>
+</head>
+<body>
+<!-- グラフ描画エリア -->
+<div>
+    <canvas height="100%" id="canvas"></canvas>
+</div>
+<hr size="3">
+<div>
+    <canvas height="100%" id="canvas2"></canvas>
+</div>
+    
+<!-- グラフ更新ボタン -->
+<button type="button" id="btn">グラフを更新</button>
+
+<script>
+var levelGraph = [];  // グラフデータ（描画する水位データ）
+var targetGraph = []; // グラフデータ（描画する目標データ）
+var pidGraph = [];  // グラフデータ（描画する注水速度データ）
+var pidtargetGraph = []; // グラフデータ（描画する目標注水速度データ）
+var xlabels = [];  // X軸のラベル
+var interval = 0.5; //　X軸のデータ間隔
+var targetWaterlevel = 0.0; // 目標水位
+var currentSpeed = 0.0; // 現在の注水速度
+var pidmax = 0
+var pidmin = 0
+
+
+// ページ読み込み時にグラフを描画
+getRandom(); // グラフデータにランダムな値を格納
+drawChart(); // グラフ描画処理を呼び出す
+
+var update = async function(){
+    const infoArray = await fetch('http://localhost:12233/api2/data/waterlevel')
+    .then((response) => {
+        return response.json();
+    }).then((result) => {
+        updateGraph(result); // グラフデータのアップデート    
+    });
+    getRandom(); // グラフデータにランダムな値を格納
+    drawChart(); // グラフを再描画
+};
+
+setInterval(update, 500);
+
+function updateGraph(jsonData) {
+    if (targetWaterlevel != jsonData.target_waterlevel) {
+        targetWaterlevel = jsonData.target_waterlevel
+        levelGraph = [];  // グラフデータの初期化
+        targetGraph = []; // グラフデータの初期化
+        pidGraph = [];    // グラフデータの初期化
+        pidtargetGraph = []; // グラフデータの初期化
+        xlabels = []; // グラフデータの初期化
+
+        let d = new Date();
+        let t = jsonData.deadline;
+        // X軸ラベルの作成
+        for(i=0; i<(t/interval) + 1; i++) { // (t/interval)+1 の 2 はグラフのマージン
+            var n = i * interval;
+            var _h = (d.getHours() + Math.floor(n / 3600)) % 24;
+            var _m = (d.getMinutes() + Math.floor(n / 60)) % 60;
+            var _s = (d.getSeconds() + Math.floor(n)) % 60;
+            var _ms = ((d.getMilliseconds()) + (n - Math.floor(n)) * 1000) % 1000;
+            var xlabel = String(_h) + ':' + String(_m) + ':' + String(_s) + '.' + String(_ms);
+            xlabels.push(xlabel);
+        }
+        // 目標グラフの作成
+        for(i=0; i<(t/interval) + 1; i++) { // (t/interval)+1 の 2 はグラフのマージン
+            targetGraph.push(NaN);
+            pidtargetGraph.push(NaN);
+        }
+        targetGraph[0] = jsonData.current_waterlevel;
+        targetGraph[targetGraph.length - 1] = jsonData.target_waterlevel;
+        
+        // グラフ表示のため「排水」であれば、速度にマイナスをつけて表示する
+        if (jsonData.current_waterlevel < jsonData.target_waterlevel) {
+            pidtargetGraph[0] = jsonData.target_speed;
+            pidtargetGraph[targetGraph.length - 1] = jsonData.target_speed;
+        } else {
+            pidtargetGraph[0] = jsonData.target_speed * -1;
+            pidtargetGraph[targetGraph.length - 1] = jsonData.target_speed * -1;
+        }
+        pidmax = jsonData.target_speed + 5;
+        pidmin = jsonData.target_speed - 5;
+    }
+    if (targetGraph.length >= levelGraph.length) {
+        levelGraph.push(jsonData.current_waterlevel);
+        pidGraph.push(jsonData.current_speed);
+    }
+}
+
+/*
+// ボタンをクリックしたら、グラフを再描画
+document.getElementById('btn').onclick = function() {
+  // すでにグラフ（インスタンス）が生成されている場合は、グラフを破棄する
+  if (myChart) {
+    myChart.destroy();
+  }
+
+  getRandom(); // グラフデータにランダムな値を格納
+  drawChart(); // グラフを再描画
+}
+*/
+
+// グラフデータをランダムに生成
+function getRandom() {
+    chartVal = []; // 配列を初期化
+    var length = 10;
+    for (i = 0; i < length; i++) {
+    chartVal.push(Math.floor(Math.random() * 20));
+    }
+}
+
+
+// グラフ描画処理
+function drawChart() {
+    var ctx = document.getElementById('canvas').getContext('2d');
+    window.myChart = new Chart(ctx, { // インスタンスをグローバル変数で生成
+        type: 'line',
+        data: { // ラベルとデータセット
+            labels: xlabels,
+            datasets: [{
+                label: "現在の注水速度[cm/s]",
+                data: pidGraph, // グラフデータ
+                borderWidth: 3, // 枠線の太さ
+                borderColor: 'rgba(0, 134, 197, 1)', // 棒の枠線の色
+                fill: false
+            },
+            {
+                label: "目標注水速度[cm/s]",
+                data: pidtargetGraph, // グラフデータ
+                spanGaps: true,
+                borderWidth: 3, // 枠線の太さ
+                borderColor: 'rgba(135, 134, 197, 1)', // 棒の枠線の色
+                fill: false
+            }],
+        },
+        options: {
+            animation: false,
+            scales: {
+                xAxes: [
+                    {
+                        scaleLabel: {
+                            display: false,
+                            align: "end",
+                            labelString: "時刻",
+                            fontSize: 16,
+                            fontColor: "black",
+                            fontStyle: "bold"
+                        }
+                    }
+                ],
+                yAxes: [
+                    {                        
+                        scaleLabel: {
+                            display: true,
+                            labelString: "注水速度[cm/s]",
+                            fontSize: 16,
+                            fontColor: "black",
+                            fontStyle: "bold"
+                        },
+                        ticks: {
+                            min: pidmin,
+                            max: pidmax
+                        }
+                    }
+                ]
+            },
+            title: {
+                display: true,
+                position: "top",
+                fontSize: 20,
+                fontColor: "black",
+                fontStyle: "bold",
+                text: "PID 制御による注水速度の変化"
+            }
+        }
+    });
+    var ctx = document.getElementById('canvas2').getContext('2d');
+    window.myChart = new Chart(ctx, { // インスタンスをグローバル変数で生成
+        type: 'line',
+        data: { // ラベルとデータセット
+            labels: xlabels,
+            datasets: [{
+                label: "現在の水位[cm]",
+                data: levelGraph, // グラフデータ
+                borderWidth: 3, // 枠線の太さ
+                borderColor: 'rgba(0, 134, 197, 1)', // 棒の枠線の色
+                fill: false
+            },
+            {
+                label: "目標となる水位変化[cm]",
+                data: targetGraph, // グラフデータ
+                spanGaps: true,
+                borderWidth: 3, // 枠線の太さ
+                borderColor: 'rgba(135, 134, 197, 1)', // 棒の枠線の色
+                fill: false
+            }],
+        },
+        options: {
+            animation: false,
+            scales: {
+                xAxes: [
+                    {
+                        scaleLabel: {
+                            display: false,
+                            position: "right",
+                            labelString: "時刻",
+                            fontSize: 16,
+                            fontColor: "black",
+                            fontStyle: "bold"
+                        }
+                    }
+                ],
+                yAxes: [
+                    {
+                        scaleLabel: {
+                            display: true,
+                            labelString: "水位[cm]",
+                            fontSize: 16,
+                            fontColor: "black",
+                            fontStyle: "bold"
+                        },
+                        ticks: {
+                            min:0
+                        }
+                    }
+                ]
+            },
+            title: {
+                display: true,
+                position: "top",
+                fontSize: 20,
+                fontColor: "black",
+                fontStyle: "bold",
+                text: "目標水位と時刻毎の水位変化"
+            }
+        }
+    });
+}
+</script>
+</body>
+</html>
