@@ -1,14 +1,17 @@
 from time import sleep
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
 import uvicorn
 import argparse
 import threading
 from controller import Controller
 from awsclient import AWSClient
-from servo import Servo
+#from servo import Servo
+from servo_pigpio import Servo
 import ctypes
 
-parser = argparse.ArgumentParser(description="two water pump controller")
+parser = argparse.ArgumentParser(description="two water pump controller") 
 parser.add_argument('-s', '--speed', type=int, default=20, help='motor speed (duty rate, default 20)')
 parser.add_argument('-t', '--test', action='store_true', default=False, help='Dry run mode')
 args = parser.parse_args()
@@ -49,6 +52,15 @@ def task(t:int):
         running_servo = None
 
 app = FastAPI()
+
+# CORS設定を追加
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # すべてのオリジンを許可（開発中のみ推奨）
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 ## 給水と排水の方向は後で決定する. とりあえず id=1 が給水, id=2 が排水
 supply = Controller(motorid=1, m1pin=6, m2pin=13, pwmpin=12, testmode=args.test)

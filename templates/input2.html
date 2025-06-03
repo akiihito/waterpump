@@ -8,6 +8,9 @@
 
 </head>
 <body>
+    <input type="text" id="ipInput">
+    <button onclick="getIPAddress()">IP変更</button>
+    <hr>
     <fieldset>
     <input type="radio" id="radio_apply" name="pump_direction" value="supply" />
     <label for="radio_apply">給水</label>
@@ -27,6 +30,11 @@
     <button type="button" id="req_stop">Stop</button>
     <br><span class="msg">message</span>
     <script>
+	let ipAddress = "192.168.8.115"
+	function getIPAddress() {
+		ipAddress = document.getElementById("ipInput").value;
+		console.log("入力されたIPアドレス: ", ipAddress);
+        }
         $(speed).on("input", function (e) {
             range = e.target
             $(".speed-value").text(range.value)
@@ -39,6 +47,9 @@
             range = e.target
             $(".ratio-value").text(range.value)
         })
+
+	//現在利用しているIPアドレスを表示
+        document.getElementById("ipInput").placeholder = `${ipAddress}`;
 
         // ポンプの作動をスピード付きで送信
         const startbutton = document.getElementById("req_start");
@@ -58,7 +69,7 @@
                 const duration = document.getElementById("duration")
                 const speed = document.getElementById("speed")
                 const ratio = document.getElementById("ratio")
-                const url = 'http://192.168.8.115:8000/api2/' + direction + '?duration=' + String(duration.value) + '&speed=' + String(speed.value) + '&ratio=' + String(ratio.value);
+                const url = 'http://' + ipAddress + ':8000/api2/' + direction + '?duration=' + String(duration.value) + '&speed=' + String(speed.value) + '&ratio=' + String(ratio.value);
                 Http.open("GET", url);
                 Http.send();
             } else {
@@ -71,7 +82,7 @@
         stopbutton.addEventListener("click", () => {
             $(".msg").text("stop button pushed")
             const Http = new XMLHttpRequest();
-            const url = 'http://192.168.8.115.8000/api/stop';
+            const url = 'http://' + ipAddress + ':8000/api/stop';
             Http.open("GET", url);
             Http.send();
         });
